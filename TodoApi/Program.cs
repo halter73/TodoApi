@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using TodoApi;
@@ -20,6 +22,7 @@ builder.Services.AddSqlite<TodoDbContext>(connectionString);
 
 // Configure identity
 builder.Services.AddIdentityCore<TodoUser>()
+                .AddSignInManager<SignInManager<TodoUser>>()
                 .AddEntityFrameworkStores<TodoDbContext>();
 
 // State that represents the current user from the database *and* the request

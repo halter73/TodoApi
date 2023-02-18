@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Todo.Maui.Client.LogInPage"
+             Title="Log in">
+    <VerticalStackLayout>
+        <Label Text="{Binding Path=ErrorMessage}" IsVisible="{Binding Path=WasError}" TextColor="Red" />
+
+        <Label Text="User name" />
+        <Entry Text="{Binding Path=UserInfo.Username}" />
+
+        <Label Text="Password" />
+        <Entry Text="{Binding Path=UserInfo.Password}" IsPassword="True" />
+
+        <Grid ColumnDefinitions="*, *">
+            <Button Text="Log in" Clicked="OnLogInButtonClicked" />
+            <Button Text="Create user" Clicked="OnCreateUserButtonClicked" Grid.Column="1" />
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto, *">
+            <CheckBox IsChecked="{Binding UseCookies}" />
+            <Label Text="Use Cookies" Grid.Column="1" VerticalTextAlignment="Center" />
+        </Grid>
+    </VerticalStackLayout>
+</ContentPage>

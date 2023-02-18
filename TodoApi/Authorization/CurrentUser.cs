@@ -8,6 +8,6 @@ public class CurrentUser
     public TodoUser? User { get; set; }
     public ClaimsPrincipal Principal { get; set; } = default!;
 
-    public string Id => Principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+    public string Id => Principal.FindFirstValue(ClaimTypes.Name) ?? Principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
     public bool IsAdmin => Principal.IsInRole("admin");
 }

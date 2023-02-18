@@ -25,6 +25,30 @@ public static class UsersApi
             return TypedResults.ValidationProblem(result.Errors.ToDictionary(e => e.Code, e => new[] { e.Description }));
         });
 
+        group.MapPost("/cookie", async (UserInfo login, SignInManager<TodoUser> signInManager) =>
+        {
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+            var result = await signInManager.PasswordSignInAsync(login.Username, login.Password, isPersistent: true, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                return Results.Ok();
+            }
+            else if (result.RequiresTwoFactor)
+            {
+                throw new NotSupportedException();
+            }
+            else if (result.IsLockedOut)
+            {
+                return Results.Unauthorized();
+            }
+            else
+            {
+                return Results.Unauthorized();
+            }
+        });
+
         group.MapPost("/token", async Task<Results<BadRequest, Ok<AuthToken>>> (UserInfo userInfo, UserManager<TodoUser> userManager, ITokenService tokenService) =>
         {
             var user = await userManager.FindByNameAsync(userInfo.Username);

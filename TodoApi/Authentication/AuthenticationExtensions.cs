@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 
 namespace TodoApi;
 
@@ -59,6 +60,8 @@ public static class AuthenticationExtensions
                 };
             });
         }
+
+        authenticationBuilder.AddIdentityCookies();
 
         return builder;
     }

@@ -29,11 +29,12 @@ public static class CurrentUserExtensions
             // We're not going to transform anything. We're using this as a hook into authorization
             // to set the current user without adding custom middleware.
             _currentUser.Principal = principal;
+            var name = _currentUser.Id;
 
-            var loginProvider = principal.FindFirstValue("provider");
-
-            if (principal.FindFirstValue(ClaimTypes.NameIdentifier) is { Length: > 0 } name)
+            if (!string.IsNullOrEmpty(name))
             {
+                var loginProvider = principal.FindFirstValue("provider");
+
                 // Resolve the user manager and see if the current user is a valid user in the database
                 // we do this once and store it on the current user.
                 _currentUser.User = loginProvider is null

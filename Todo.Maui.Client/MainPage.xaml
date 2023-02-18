@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Todo.Maui.Client.MainPage">
+
+    <Grid RowDefinitions="*, Auto">
+        <ScrollView>
+            <CollectionView ItemsSource="{Binding TodoItems}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="Auto, *">
+                            <CheckBox IsChecked="{Binding IsComplete}" />
+                            <Label Text="{Binding Title}" Grid.Column="1" VerticalTextAlignment="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+        <Grid ColumnDefinitions="*, Auto" Grid.Row="1">
+            <Label Text="{Binding UserName, StringFormat='User: {0}'}" VerticalTextAlignment="Center" />
+            <Button Text="Log out" Grid.Column="1" Clicked="OnLogOutButtonClicked" />
+        </Grid>
+    </Grid>
+
+</ContentPage>
