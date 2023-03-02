@@ -4,7 +4,7 @@ using System.Net.Http.Json;
 
 namespace Todo.Maui.Client;
 
-public class AuthenticatedClientProvider
+public class AuthenticatedClientProvider : IDisposable
 {
 #if ANDROID
     private readonly Xamarin.Android.Net.AndroidMessageHandler _handler = new Xamarin.Android.Net.AndroidMessageHandler
@@ -74,8 +74,35 @@ public class AuthenticatedClientProvider
         return null;
     }
 
-    public Task<string?> AuthenticateAsync(UserInfo userInfo, bool useCookies = false)
-        => useCookies ? AuthenticateWithCookiesAsync(userInfo) : AuthenticateWithTokenAsync(userInfo);
+    public async Task AuthenticateWithTokenAsync(UserInfo userInfo)
+    {
+        var response = await _httpClient.PostAsJsonAsync("users/token", userInfo);
+        response.EnsureSuccessStatusCode();
+
+        var authToken = await response.Content.ReadFromJsonAsync<AuthToken>();
+
+        if (string.IsNullOrEmpty(authToken?.Token))
+        {
+            throw new InvalidDataException("No token in /users/token response.");
+        }
+
+        await SecureStorage.Default.SetAsync("token", authToken.Token);
+    }
+
+    public async Task AuthenticateWithCookieAsync(UserInfo userInfo)
+    {
+        var response = await _httpClient.PostAsJsonAsync("users/cookie", userInfo);
+        response.EnsureSuccessStatusCode();
+
+        var cookie = _cookies.GetCookieHeader(_baseAddress);
+
+        if (string.IsNullOrEmpty(cookie))
+        {
+            throw new InvalidDataException("No cookie set by /users/cookie.");
+        }
+
+        await SecureStorage.Default.SetAsync("cookie", cookie);
+    }
 
     private HttpClient ResetHttpClient()
     {
@@ -84,41 +111,15 @@ public class AuthenticatedClientProvider
         return _httpClient;
     }
 
-    private async Task<string?> AuthenticateWithTokenAsync(UserInfo userInfo)
+    public void Reset()
     {
-        var response = await _httpClient.PostAsJsonAsync("users/token", userInfo);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return $"{(int)response.StatusCode} HTTP status getting token from /users/token";
-        }
-
-        var authToken = await response.Content.ReadFromJsonAsync<AuthToken>();
-
-        if (authToken is null)
-        {
-            return "null token from /users/token";
-        }
-
-        await SecureStorage.Default.SetAsync("token", authToken.Token);
-        SecureStorage.Default.Remove("cookie");
-
-        return null;
+        ResetHttpClient();
+        SecureStorage.Remove("token");
+        SecureStorage.Remove("cookie");
     }
 
-    private async Task<string?> AuthenticateWithCookiesAsync(UserInfo userInfo)
+    public void Dispose()
     {
-        var response = await _httpClient.PostAsJsonAsync("users/cookie", userInfo);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return $"{(int)response.StatusCode} HTTP status getting token from /users/cookie";
-        }
-
-        await SecureStorage.Default.SetAsync("cookie", _cookies.GetCookieHeader(_baseAddress));
-
-        SecureStorage.Default.Remove("token");
-
-        return null;
+        _httpClient.Dispose();
     }
 }

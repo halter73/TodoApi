@@ -4,15 +4,15 @@ namespace Todo.Maui.Client
 {
     public partial class MainPage : ContentPage
     {
-        private readonly AuthenticatedClientProvider _clientProvider;
+        private readonly AuthenticatedClientProvider _authClientProvider;
 
-        public MainPage(AuthenticatedClientProvider clientProvider)
+        public MainPage(AuthenticatedClientProvider authClientProvider)
         {
             InitializeComponent();
 
             BindingContext = this;
 
-            _clientProvider = clientProvider;
+            _authClientProvider = authClientProvider;
         }
 
         public IEnumerable<TodoItem> TodoItems { get; private set; } = Array.Empty<TodoItem>();
@@ -22,7 +22,7 @@ namespace Todo.Maui.Client
         {
             base.OnAppearing();
 
-            if (await _clientProvider.GetAuthenticatedClientAsync() is not HttpClient client)
+            if (await _authClientProvider.GetAuthenticatedClientAsync() is not HttpClient client)
             {
                 await Shell.Current.GoToAsync(nameof(LogInPage));
                 return;
@@ -44,7 +44,6 @@ namespace Todo.Maui.Client
 
         private async void OnLogOutButtonClicked(object sender, EventArgs e)
         {
-            SecureStorage.Remove("token");
             await Shell.Current.GoToAsync(nameof(LogInPage));
         }
     }
